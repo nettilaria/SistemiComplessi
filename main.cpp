@@ -58,13 +58,14 @@ int main() //le modifiche vanno sus
             nodes[k].SetEntryPotential(entrypotcentral); //da aggiustare
             Total_potential += entrypotcentral;
             nofCentral++;
-            Centrall.push_back(k);
+            Centrall.push_back(k); //si sta riempiendo il vettore di Cetral con i posti delle Centrali rispettivi all'array nodes
         }
     }
     if (nofCentral == 0)
     { //Controllo per non avere un numero nullo di centrali.
         int positionofC = forCentralBuilding(gen);
         nodes[positionofC].SetType(BuildingType::C);
+        Centrall.push_back(positionofC);
     }
 
     for (int k = 0; k < nofCentral; k++)
@@ -77,7 +78,6 @@ int main() //le modifiche vanno sus
     std::cout << "nofSorting: " << nofSorting << std::endl;
     int j = 0; //j è fuori per poter calcolare solo il triangolo superiore della matrice dato che è simmetrica
     int counter = 0;
-   
 
     for (int i = 0; i < N; ++i)
     {
@@ -89,7 +89,7 @@ int main() //le modifiche vanno sus
         //DA GENERARE MATRICE DI ADIACENZA, CONTROLLANDO LA NATURA DEI VARI NODI.
         for (j; j < N; ++j)
         {
-    
+
             double rnd = link_dist(gen); //generazione variabile uniforme della probabilità che avvenga link
             BuildingType node_j = nodes[j].GetType();
             if (i == j)
@@ -107,14 +107,13 @@ int main() //le modifiche vanno sus
                         {
                             adj_matrix[i][j] = 1; //link small
                             nofSmalllink++;
-                           
                         }
                     }
                     else if (node_j == BuildingType::S)
                     { //casa-smismistamento
                         if (rnd <= 0.20)
                         {
-                            adj_matrix[i][j] = 4; 
+                            adj_matrix[i][j] = 4;
                             nofHSLink++;
                         }
                     }
@@ -143,30 +142,54 @@ int main() //le modifiche vanno sus
                     }
                     else
                     { //smistamento-centrale
+                        int rn = 0;
                         if (nodes[i].GetSortingLink() == false)
                         {
-
-                            int rn = forCentralchoice(gen); //variabile intera che assume valori da 1 ad N
-                            for (int l = 0; l < nofCentral;)
-                            {
-                                if (rn == Centrall[l])
+                            //SCELTA DELLA CENTRALE A CUI COLLEGARE LO SMISTAMENTO
+                            for (int m = 0; m < nofCentral;)
+                            { //Bisogna assicurarsi che rn assume effettivamente il valore di un k corrispondente ad una centrale.
+                                rn = forCentralBuilding(gen);
+                                if (rn == Centrall[m])
                                 {
-                                    adj_matrix[i][j] = 3;
-                                    nodes[i].SetSortingLink(true);
+                                    rn = Centrall[m];
+                                    break;
                                 }
                                 else
                                 {
-                                    l++;
+                                    if (m == (nofCentral - 1))
+                                    {
+                                        m = 0;
+                                    } //Non voglio che esca dal loop finchè non ha un valore assegnato.
+
+                                    else
+                                    {
+                                        m++;
+                                    }
                                 }
                             }
+                            //COLLEGAMENTO DEI DUE NODI
+                            //  Il valore è però rn, che non è detto coincida con j
+
+                            if (rn == j) //Se coincide con j, siam contenti e ci va pure di culo, dunque settiamo direttamente il link
+                            {
+                                adj_matrix[i][j] = 3;
+                                nodes[i].SetSortingLink(true);
+                                nofBiglink++;
+                            }
+                            else //Se j != rn allora bisogna collegare i ad rn e buttare a zero il link i-j.
+                            //Siamo comunque nel caso smistamento- centrale, dunque ciò che viene buttato a zero è per forza un link di questo tipo.
+                            {
+                                adj_matrix[i][rn] = 3;
+                                adj_matrix[i][j] = 0;
+                                nodes[i].SetSortingLink(true);
+                                nofBiglink++;
+                            }
                         }
-                        else
-                        {
-                            adj_matrix[i][j] = 0;
-                        }
+                      
                     }
                 }
-                else
+
+                else //centrale
                 {
                     if (node_j == BuildingType::H)
                     { //centrale-casa
@@ -187,54 +210,71 @@ int main() //le modifiche vanno sus
                         else
                         {
 
-                            adj_matrix[i][j] = 3;
-
+                            adj_matrix[i][j] = 0; //Se lo smistamento è già collegato, non deve avere collegamento con la matrice corrente
                         }
                     }
                     else
                     { //centrale-centrale
-                    adj_matrix[i][j] = 0;
+                        adj_matrix[i][j] = 0;
                     }
                 }
-            
+            }
         }
+        counter++;
+        j = counter;
     }
-    counter++;
-    j = counter;
-}
 
-for (int i = 0; i < N; i++)
-{
-    for (int k = 0; k < N; k++)
+    /*for (int k = 0; k < nofCentral; k++)
     {
-        if (adj_matrix[i][k] == 0) //null
+        int rn = forCentralchoice(gen);
+
+            for (int p = 0; p < N; ++p)
         {
-            printf("\033[33m0 ");
+            if ((nodes[p].GetType() == BuildingType::S) && (nodes[p].GetSortingLink() == false)) //Per evitare che possa esserci uno smistamento non collegato a ciascuna centrale.
+            //[Si faccia riferimento al ciclo precedente, ultima condizione Centrale- smistamento]
+            {
+                if (rn ==Centrall[k]){
+                    adj_matrix[p][rn]=3;
+                }
+                else{
+                ++k;
+                }
+            }
         }
-        else if (adj_matrix[i][k] == 1) //hh
+    }*/
+
+    for (int i = 0; i < N; i++)
+    {
+        for (int k = 0; k < N; k++)
         {
-            //std::cout << "       ";
-            printf("\033[31m1 ");
+            if (adj_matrix[i][k] == 0) //null
+            {
+                printf("\033[33m0 ");
+            }
+            else if (adj_matrix[i][k] == 1) //hh
+            {
+                //std::cout << "       ";
+                printf("\033[31m1 ");
+            }
+            else if (adj_matrix[i][k] == 2) // ss
+            {
+                //std::cout << "       ";
+                printf("\033[32m2 ");
+            }
+            else if (adj_matrix[i][k] == 3) //cs
+            {
+                // std::cout << "       ";
+                printf("\033[36m3 ");
+            }
+            else //hs
+                printf("\033[37m4 ");
         }
-        else if (adj_matrix[i][k] == 2) // ss
-        {
-            //std::cout << "       ";
-            printf("\033[32m2 ");
-        }
-        else if (adj_matrix[i][k] == 3) //cs
-        {
-            // std::cout << "       ";
-            printf("\033[36m3 ");
-        }
-        else //hs
-            printf("\033[37m4 ");
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
-}
-std::cout << "nofSmalllink :" << nofSmalllink << "\n";
-std::cout << "nofHouseSortingLink: " << nofHSLink << "\n";
-std::cout << "nofMediumlink :" << nofMediumlink << "\n";
-std::cout << "nofBiglink :" << nofBiglink << "\n";
+    std::cout << "nofSmalllink :" << nofSmalllink << "\n";
+    std::cout << "nofHouseSortingLink: " << nofHSLink << "\n";
+    std::cout << "nofMediumlink :" << nofMediumlink << "\n";
+    std::cout << "nofBiglink :" << nofBiglink << "\n";
 }
 
 //Nota: Sarebbe meglio differenziare i link casa-casa, casa-smistamento. Non tanto per una questione di portata energetica, quanto per differenziarli.
