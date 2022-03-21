@@ -95,6 +95,7 @@ int main() //le modifiche vanno sus
             if (i == j)
             {
                 adj_matrix[i][j] = 0;
+                adj_matrix[j][i] = 0;
             }
             else
             {
@@ -106,6 +107,8 @@ int main() //le modifiche vanno sus
                         if (rnd <= 0.30) //si suppone che, su 100 case, una casa sia collegata con altre 10.
                         {
                             adj_matrix[i][j] = 1; //link small
+                            adj_matrix[j][i] = 1;
+
                             nofSmalllink++;
                         }
                     }
@@ -114,12 +117,15 @@ int main() //le modifiche vanno sus
                         if (rnd <= 0.20)
                         {
                             adj_matrix[i][j] = 4;
+                            adj_matrix[j][i] = 4;
+
                             nofHSLink++;
                         }
                     }
                     else
                     { //casa-centrale
                         adj_matrix[i][j] = 0;
+                        adj_matrix[j][i] = 0;
                     }
                 }
                 else if (node_i == BuildingType::S)
@@ -129,6 +135,8 @@ int main() //le modifiche vanno sus
                         if (rnd <= 0.20)
                         {
                             adj_matrix[i][j] = 4; //Sempre 1 perchè l'energia che confluisce è sempre la medesima
+                            adj_matrix[j][i] = 4;
+
                             nofHSLink++;
                         }
                     }
@@ -137,6 +145,8 @@ int main() //le modifiche vanno sus
                         if (rnd <= 0.10)
                         {
                             adj_matrix[i][j] = 2;
+                            adj_matrix[j][i] = 2;
+
                             nofMediumlink++;
                         }
                     }
@@ -172,20 +182,24 @@ int main() //le modifiche vanno sus
 
                             if (rn == j) //Se coincide con j, siam contenti e ci va pure di culo, dunque settiamo direttamente il link
                             {
-                                adj_matrix[i][j] = 3;
+                                adj_matrix[i][j] = 8;
+                                adj_matrix[j][i] = 8; //La matrice è simmetrica
                                 nodes[i].SetSortingLink(true);
                                 nofBiglink++;
                             }
                             else //Se j != rn allora bisogna collegare i ad rn e buttare a zero il link i-j.
                             //Siamo comunque nel caso smistamento- centrale, dunque ciò che viene buttato a zero è per forza un link di questo tipo.
                             {
-                                adj_matrix[i][rn] = 3;
+                                adj_matrix[i][rn] = 8;
+                                adj_matrix[rn][i] = 8;
+
                                 adj_matrix[i][j] = 0;
+                                adj_matrix[j][i] = 0;
+
                                 nodes[i].SetSortingLink(true);
                                 nofBiglink++;
                             }
                         }
-                      
                     }
                 }
 
@@ -194,6 +208,7 @@ int main() //le modifiche vanno sus
                     if (node_j == BuildingType::H)
                     { //centrale-casa
                         adj_matrix[i][j] = 0;
+                        adj_matrix[j][i] = 0;
                     }
                     else if (node_j == BuildingType::S)
                     { //centrale-smistamento
@@ -204,6 +219,8 @@ int main() //le modifiche vanno sus
                             if (rn <= 0.50)
                             {
                                 adj_matrix[i][j] = 3;
+                                adj_matrix[j][i] = 3;
+
                                 nofBiglink++;
                             }
                         }
@@ -211,11 +228,13 @@ int main() //le modifiche vanno sus
                         {
 
                             adj_matrix[i][j] = 0; //Se lo smistamento è già collegato, non deve avere collegamento con la matrice corrente
+                            adj_matrix[j][i] = 0;
                         }
                     }
                     else
                     { //centrale-centrale
                         adj_matrix[i][j] = 0;
+                        adj_matrix[j][i] = 0;
                     }
                 }
             }
@@ -265,6 +284,11 @@ int main() //le modifiche vanno sus
             {
                 // std::cout << "       ";
                 printf("\033[36m3 ");
+            }
+            else if (adj_matrix[i][k] == 8) //cs
+            {
+                // std::cout << "       ";
+                printf("\033[36m8 ");
             }
             else //hs
                 printf("\033[37m4 ");
