@@ -6,6 +6,38 @@
 #include <cstdlib>
 #include <iomanip>
 #include <vector>
+
+
+/* *************************************************************
+Nella matrice di adiacenza:
+- 0 =  nullo
+- 1 = casa - casa
+- 2 = smistamento - smistamento
+- 3 = smistamento - centrale
+- 4 = casa -smistamento 
+
+
+
+
+
+
+
+
+
+
+ **************************************************************  */
+
+
+
+
+
+
+
+
+
+
+
+
 int main() //le modifiche vanno sus
 {
     int const N = 40;                                //N è numero di nodi, N^2-N il numero di link possibili
@@ -134,7 +166,7 @@ int main() //le modifiche vanno sus
                     { //smistamento casa
                         if (rnd <= 0.20)
                         {
-                            adj_matrix[i][j] = 4; //Sempre 1 perchè l'energia che confluisce è sempre la medesima
+                            adj_matrix[i][j] = 4; 
                             adj_matrix[j][i] = 4;
 
                             nofHSLink++;
@@ -182,16 +214,16 @@ int main() //le modifiche vanno sus
 
                             if (rn == j) //Se coincide con j, siam contenti e ci va pure di culo, dunque settiamo direttamente il link
                             {
-                                adj_matrix[i][j] = 8;
-                                adj_matrix[j][i] = 8; //La matrice è simmetrica
+                                adj_matrix[i][j] = 3;
+                                adj_matrix[j][i] = 3; //La matrice è simmetrica
                                 nodes[i].SetSortingLink(true);
                                 nofBiglink++;
                             }
                             else //Se j != rn allora bisogna collegare i ad rn e buttare a zero il link i-j.
                             //Siamo comunque nel caso smistamento- centrale, dunque ciò che viene buttato a zero è per forza un link di questo tipo.
                             {
-                                adj_matrix[i][rn] = 8;
-                                adj_matrix[rn][i] = 8;
+                                adj_matrix[i][rn] = 3;
+                                adj_matrix[rn][i] = 3;
 
                                 adj_matrix[i][j] = 0;
                                 adj_matrix[j][i] = 0;
@@ -243,24 +275,44 @@ int main() //le modifiche vanno sus
         j = counter;
     }
 
-    /*for (int k = 0; k < nofCentral; k++)
+    for (int p = 0; p < N;)
     {
         int rn = forCentralchoice(gen);
-
-            for (int p = 0; p < N; ++p)
+        if ((nodes[p].GetType() == BuildingType::S) && (nodes[p].GetSortingLink() == false)) //Per evitare che possa esserci uno smistamento non collegato a ciascuna centrale.
+        //[Si faccia riferimento al ciclo precedente, ultima condizione Centrale- smistamento]
         {
-            if ((nodes[p].GetType() == BuildingType::S) && (nodes[p].GetSortingLink() == false)) //Per evitare che possa esserci uno smistamento non collegato a ciascuna centrale.
-            //[Si faccia riferimento al ciclo precedente, ultima condizione Centrale- smistamento]
-            {
-                if (rn ==Centrall[k]){
-                    adj_matrix[p][rn]=3;
+            for (int m = 0; m < nofCentral;)
+            { //Bisogna assicurarsi che rn assume effettivamente il valore di un k corrispondente ad una centrale.
+                rn = forCentralBuilding(gen);
+                if (rn == Centrall[m])
+                {
+                    rn = Centrall[m];
+                    break;
                 }
-                else{
-                ++k;
+                else
+                {
+                    if (m == (nofCentral - 1))
+                    {
+                        m = 0;
+                    } //Non voglio che esca dal loop finchè non ha un valore assegnato.
+
+                    else
+                    {
+                        m++;
+                    }
                 }
             }
+            adj_matrix[p][rn] = 3;
+            adj_matrix[rn][p] = 3; //La matrice è simmetrica
+
+            nodes[p].SetSortingLink(true);
+            nofBiglink++;
         }
-    }*/
+        else
+        {
+            p++;
+        }
+    }
 
     for (int i = 0; i < N; i++)
     {
@@ -285,14 +337,15 @@ int main() //le modifiche vanno sus
                 // std::cout << "       ";
                 printf("\033[36m3 ");
             }
-            else if (adj_matrix[i][k] == 8) //cs
-            {
-                // std::cout << "       ";
-                printf("\033[36m8 ");
-            }
-            else //hs
+            else if(adj_matrix[i][k] == 4){ //hs
                 printf("\033[37m4 ");
+            }
+            else {//E' giusto vedere se viene generato qualche numero che non sia tra quelli contemplati.
+                 printf("\033[35m7 ");
+
+            }
         }
+
         std::cout << std::endl;
     }
     std::cout << "nofSmalllink :" << nofSmalllink << "\n";
@@ -300,7 +353,3 @@ int main() //le modifiche vanno sus
     std::cout << "nofMediumlink :" << nofMediumlink << "\n";
     std::cout << "nofBiglink :" << nofBiglink << "\n";
 }
-
-//Nota: Sarebbe meglio differenziare i link casa-casa, casa-smistamento. Non tanto per una questione di portata energetica, quanto per differenziarli.
-//E' diverso colpire uno dei due link a livello di danni.
-//Mettere controllo per avere per avere sicurezza che almeno una casa sia collegata ad uno smistamento
