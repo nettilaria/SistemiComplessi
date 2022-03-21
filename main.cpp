@@ -15,30 +15,9 @@ Nella matrice di adiacenza:
 - 2 = smistamento - smistamento
 - 3 = smistamento - centrale
 - 4 = casa -smistamento 
-
-
-
-
-
-
-
-
-
-
  **************************************************************  */
 
-
-
-
-
-
-
-
-
-
-
-
-int main() //le modifiche vanno sus
+int main() 
 {
     int const N = 40;                                //N è numero di nodi, N^2-N il numero di link possibili
     std::array<std::array<int, N>, N> adj_matrix{0}; //matrice di adiacenza, con int come pesi
@@ -275,6 +254,11 @@ int main() //le modifiche vanno sus
         j = counter;
     }
 
+
+
+
+//Controllo che non vi siano smistamenti non connessi ad una centrale.
+// Se così fosse, come nelle righe 167-169 ne scelgo una tra le tante e assegno il link 3. 
     for (int p = 0; p < N;)
     {
         int rn = forCentralchoice(gen);
