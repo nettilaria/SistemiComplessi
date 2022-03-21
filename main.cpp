@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <vector>
-
+#include <fstream>
 
 /* *************************************************************
 Nella matrice di adiacenza:
@@ -17,7 +17,7 @@ Nella matrice di adiacenza:
 - 4 = casa -smistamento 
  **************************************************************  */
 
-int main() 
+int main()
 {
     int const N = 40;                                //N è numero di nodi, N^2-N il numero di link possibili
     std::array<std::array<int, N>, N> adj_matrix{0}; //matrice di adiacenza, con int come pesi
@@ -89,18 +89,16 @@ int main()
     std::cout << "nofSorting: " << nofSorting << std::endl;
     int j = 0; //j è fuori per poter calcolare solo il triangolo superiore della matrice dato che è simmetrica
     int counter = 0;
+    int linkCentral = 0; //Per capire quanti se ogni smistamento è collegato ad una ed una sola centrale
 
     for (int i = 0; i < N; ++i)
     {
-
-        int pi = 0;
 
         BuildingType node_i = nodes[i].GetType();
 
         //DA GENERARE MATRICE DI ADIACENZA, CONTROLLANDO LA NATURA DEI VARI NODI.
         for (j; j < N; ++j)
         {
-
             double rnd = link_dist(gen); //generazione variabile uniforme della probabilità che avvenga link
             BuildingType node_j = nodes[j].GetType();
             if (i == j)
@@ -145,7 +143,7 @@ int main()
                     { //smistamento casa
                         if (rnd <= 0.20)
                         {
-                            adj_matrix[i][j] = 4; 
+                            adj_matrix[i][j] = 4;
                             adj_matrix[j][i] = 4;
 
                             nofHSLink++;
@@ -233,6 +231,7 @@ int main()
                                 adj_matrix[j][i] = 3;
 
                                 nofBiglink++;
+                                linkCentral++;
                             }
                         }
                         else
@@ -254,11 +253,8 @@ int main()
         j = counter;
     }
 
-
-
-
-//Controllo che non vi siano smistamenti non connessi ad una centrale.
-// Se così fosse, come nelle righe 167-169 ne scelgo una tra le tante e assegno il link 3. 
+    //Controllo che non vi siano smistamenti non connessi ad una centrale.
+    // Se così fosse, come nelle righe 167-169 ne scelgo una tra le tante e assegno il link 3.
     for (int p = 0; p < N;)
     {
         int rn = forCentralchoice(gen);
@@ -291,6 +287,7 @@ int main()
 
             nodes[p].SetSortingLink(true);
             nofBiglink++;
+            linkCentral++;
         }
         else
         {
@@ -321,12 +318,13 @@ int main()
                 // std::cout << "       ";
                 printf("\033[36m3 ");
             }
-            else if(adj_matrix[i][k] == 4){ //hs
+            else if (adj_matrix[i][k] == 4)
+            { //hs
                 printf("\033[37m4 ");
             }
-            else {//E' giusto vedere se viene generato qualche numero che non sia tra quelli contemplati.
-                 printf("\033[35m7 ");
-
+            else
+            { //E' giusto vedere se viene generato qualche numero che non sia tra quelli contemplati.
+                printf("\033[35m7 ");
             }
         }
 
@@ -336,4 +334,19 @@ int main()
     std::cout << "nofHouseSortingLink: " << nofHSLink << "\n";
     std::cout << "nofMediumlink :" << nofMediumlink << "\n";
     std::cout << "nofBiglink :" << nofBiglink << "\n";
+    std::cout << "nofCentralLink :" <<  linkCentral << "\n";
+
+
+    //SCRITTURA MATRICE SU FILE
+    std::ofstream adjmatrix;
+    adjmatrix.open("adjmatrix.txt");
+    for(int i=0; i<N; i++){
+        for(int j =0; j<N; j++){
+            adjmatrix<<adj_matrix[i][j];
+            adjmatrix<<" ";
+        }
+        adjmatrix<<std::endl;
+    }
+    adjmatrix.close();
+  
 }
