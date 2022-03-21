@@ -337,12 +337,15 @@ int main()
     std::cout << "nofCentralLink :" <<  linkCentral << "\n";
 
 
+
+
+
     //SCRITTURA MATRICE SU FILE
-    std::ofstream adjmatrix;
-    adjmatrix.open("adjmatrix.txt");
+    std::ofstream adjmatrix; 
+    adjmatrix.open("adjmatrix.txt"); //Viene creato un file di nome "adjmatrix.txt"
     for(int i=0; i<N; i++){
         for(int j =0; j<N; j++){
-            adjmatrix<<adj_matrix[i][j];
+            adjmatrix<<adj_matrix[i][j]; //Vengono scritti i numeri indentati, in modo da avere la visione della matrice
             adjmatrix<<" ";
         }
         adjmatrix<<std::endl;
