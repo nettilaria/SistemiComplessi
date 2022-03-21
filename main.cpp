@@ -77,12 +77,11 @@ int main() //le modifiche vanno sus
     std::cout << "nofSorting: " << nofSorting << std::endl;
     int j = 0; //j è fuori per poter calcolare solo il triangolo superiore della matrice dato che è simmetrica
     int counter = 0;
-    std::cout << " Il problema è nel codice scritto 80"<<std::endl;
+   
 
     for (int i = 0; i < N; ++i)
     {
-        std::cout << " Il problema è nel codice scritto 84"<<std::endl;
-        int y = 0;
+
         int pi = 0;
 
         BuildingType node_i = nodes[i].GetType();
@@ -90,7 +89,7 @@ int main() //le modifiche vanno sus
         //DA GENERARE MATRICE DI ADIACENZA, CONTROLLANDO LA NATURA DEI VARI NODI.
         for (j; j < N; ++j)
         {
-            std::cout << " Il problema è nel codice scritto 93"<<std::endl;
+    
             double rnd = link_dist(gen); //generazione variabile uniforme della probabilità che avvenga link
             BuildingType node_j = nodes[j].GetType();
             if (i == j)
@@ -99,196 +98,143 @@ int main() //le modifiche vanno sus
             }
             else
             {
-                std::cout << " Il problema è nel codice scritto 102"<<std::endl;
-                if (node_i == BuildingType::H && node_j == BuildingType::H)
-                {                    //casa-casa
-                 std::cout << " Il problema è nel codice scritto 105"<<std::endl;
-                    if (rnd <= 0.30) //si suppone che, su 100 case, una casa sia collegata con altre 10.
-                    {
-                        adj_matrix[i][j] = 1; //link small
-                        nofSmalllink++;
-                        y++;
-                    }
-                }
-                else if (node_i == BuildingType::H && node_j == BuildingType::S)
-                { //casa-smistamento
-                 std::cout << " Il problema è nel codice scritto 115"<<std::endl;
-                    //if (rnd <= (1 / nofSorting)) //si suppone che la probabilità di avere questo link sia 1/# smistamento
-                    if (rnd <= 0.20)
-                    {
-                        adj_matrix[i][j] = 4; //Sempre 1 perchè l'energia che confluisce è sempre la medesima
-                        nofHSLink++;
-                    } //link small
-                }
-                else if ((node_i == BuildingType::H && node_j == BuildingType::C) || (node_i == BuildingType::C && node_j == BuildingType::H))
-                {
-                     std::cout << " Il problema è nel codice scritto 125"<<std::endl;
-                    adj_matrix[i][j] = 0;
-                }
-                else if (node_i == BuildingType::S && node_j == BuildingType::H)
-                {
-                    if (rnd <= 0.20)
-                    {
-                        adj_matrix[i][j] = 4; //Sempre 1 perchè l'energia che confluisce è sempre la medesima
-                        nofHSLink++;
-                    } //li
-                }
-                else if (node_i == BuildingType::S && node_j == BuildingType::S)
-                { //smistamento-smistamento
-                    if (rnd <= 0.10)
-                    {
-                        adj_matrix[i][j] = 2;
-                        nofMediumlink++;
-                    }
-                }
 
-                else if (node_i == BuildingType::S && node_j == BuildingType::C)
+                if (node_i == BuildingType::H)
                 {
-                    std::cout << " Il problema è nel codice scritto qui";
-                    //smistamento- centrale
-                    /*  int flag = j;
-                    bool p = false;
-                    double probCentral = 1 / (nofCentral);
-                    double z = 1;
-                    if (nodes[i].GetSortingLink() == false)
-                    {
-                        while (p == false)
+                    if (node_j == BuildingType::H)
+                    {                    //casa-casa
+                        if (rnd <= 0.30) //si suppone che, su 100 case, una casa sia collegata con altre 10.
                         {
-
-                            double rn = link_dist(gen);
-                            if (z <= probCentral)
-                            {
-                                adj_matrix[i][flag] = 3;
-                                p = true;
-                                nofBiglink++;
-                                pi++;
-                                nodes[i].SetSortingLink(true);
-                            }
-                            if (nodes[i].GetSortingLink() == false)
-                            {
-                                z = z - rn;
-
-                                while (nodes[flag + 1].GetType() != BuildingType::C)
-                                {
-                                    if (flag < N)
-                                    {
-                                        flag++;
-                                    }
-                                    else
-                                    {
-
-                                        flag = 0;
-                                    }
-                                }
-                            }
+                            adj_matrix[i][j] = 1; //link small
+                            nofSmalllink++;
+                           
+                        }
+                    }
+                    else if (node_j == BuildingType::S)
+                    { //casa-smismistamento
+                        if (rnd <= 0.20)
+                        {
+                            adj_matrix[i][j] = 4; 
+                            nofHSLink++;
                         }
                     }
                     else
-                    {
-                        continue;
-                    }*/
-                    if (nodes[i].GetSortingLink() == false)
-                    {
-
-                        int rn = forCentralchoice(gen); //variabile intera che assume valori da 1 ad N
-                        for (int l = 0; l < N;)
-                        {
-                            if (rn == Centrall[l])
-                            {
-                                adj_matrix[i][j] = 3;
-                                nodes[i].SetSortingLink(true);
-                            }
-                            else
-                            {
-                                l++;
-                            }
-                        }
-                    }
-                    else
-                    {
+                    { //casa-centrale
                         adj_matrix[i][j] = 0;
                     }
                 }
-                /* std::uniform_int_distribution<int> forCentralchoice_(0,nofCentral);
-                int rn = forCentralchoice_(gen);
-                for (int K=0; K<N; K++) {
-                            int contatore=0;
-                            if(nodes[K].GetType()==BuildingType::C){
-                                    conatore++;
-                                   }
-
-                            if(contatore=rn){
-
-                             adj_matrix[i][K] = 3;
-
-                             break;
-
-                            }
-
-                    
-
-                }   */
-
-                else if (node_i == BuildingType::C && node_j == BuildingType::S)
+                else if (node_i == BuildingType::S)
                 {
-                    if(nodes[j].GetSortingLink()==false){
-                    
-                    double rn = link_dist(gen);
-                    if (rn <= 0.50)
-                    {
-                        adj_matrix[i][j] = 3;
-                        nofBiglink++;
+                    if (node_j == BuildingType::H)
+                    { //smistamento casa
+                        if (rnd <= 0.20)
+                        {
+                            adj_matrix[i][j] = 4; //Sempre 1 perchè l'energia che confluisce è sempre la medesima
+                            nofHSLink++;
+                        }
                     }
+                    else if (node_j == BuildingType::S)
+                    { //smistamento-smistamento
+                        if (rnd <= 0.10)
+                        {
+                            adj_matrix[i][j] = 2;
+                            nofMediumlink++;
+                        }
                     }
-                    else{
-                        
+                    else
+                    { //smistamento-centrale
+                        if (nodes[i].GetSortingLink() == false)
+                        {
 
+                            int rn = forCentralchoice(gen); //variabile intera che assume valori da 1 ad N
+                            for (int l = 0; l < nofCentral;)
+                            {
+                                if (rn == Centrall[l])
+                                {
+                                    adj_matrix[i][j] = 3;
+                                    nodes[i].SetSortingLink(true);
+                                }
+                                else
+                                {
+                                    l++;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            adj_matrix[i][j] = 0;
+                        }
                     }
                 }
+                else
+                {
+                    if (node_j == BuildingType::H)
+                    { //centrale-casa
+                        adj_matrix[i][j] = 0;
+                    }
+                    else if (node_j == BuildingType::S)
+                    { //centrale-smistamento
+                        if (nodes[j].GetSortingLink() == false)
+                        {
 
-                else if (node_i == BuildingType::C && node_j == BuildingType::C){
-                     adj_matrix[i][j] = 0;
+                            double rn = link_dist(gen);
+                            if (rn <= 0.50)
+                            {
+                                adj_matrix[i][j] = 3;
+                                nofBiglink++;
+                            }
+                        }
+                        else
+                        {
 
+                            adj_matrix[i][j] = 3;
+
+                        }
+                    }
+                    else
+                    { //centrale-centrale
+                    adj_matrix[i][j] = 0;
+                    }
                 }
-
-            }
+            
         }
-        counter++;
-        j = counter;
     }
+    counter++;
+    j = counter;
+}
 
-    for (int i = 0; i < N; i++)
+for (int i = 0; i < N; i++)
+{
+    for (int k = 0; k < N; k++)
     {
-        for (int k = 0; k < N; k++)
+        if (adj_matrix[i][k] == 0) //null
         {
-            if (adj_matrix[i][k] == 0) //null
-            {
-                printf("\033[33m0 ");
-            }
-            else if (adj_matrix[i][k] == 1) //hh
-            {
-                //std::cout << "       ";
-                printf("\033[31m1 ");
-            }
-            else if (adj_matrix[i][k] == 2) // ss
-            {
-                //std::cout << "       ";
-                printf("\033[32m2 ");
-            }
-            else if (adj_matrix[i][k] == 3) //cs
-            {
-                // std::cout << "       ";
-                printf("\033[36m3 ");
-            }
-            else //hs
-                printf("\033[37m4 ");
+            printf("\033[33m0 ");
         }
-        std::cout << std::endl;
+        else if (adj_matrix[i][k] == 1) //hh
+        {
+            //std::cout << "       ";
+            printf("\033[31m1 ");
+        }
+        else if (adj_matrix[i][k] == 2) // ss
+        {
+            //std::cout << "       ";
+            printf("\033[32m2 ");
+        }
+        else if (adj_matrix[i][k] == 3) //cs
+        {
+            // std::cout << "       ";
+            printf("\033[36m3 ");
+        }
+        else //hs
+            printf("\033[37m4 ");
     }
-    std::cout << "nofSmalllink :" << nofSmalllink << "\n";
-    std::cout << "nofHouseSortingLink: " << nofHSLink << "\n";
-    std::cout << "nofMediumlink :" << nofMediumlink << "\n";
-    std::cout << "nofBiglink :" << nofBiglink << "\n";
+    std::cout << std::endl;
+}
+std::cout << "nofSmalllink :" << nofSmalllink << "\n";
+std::cout << "nofHouseSortingLink: " << nofHSLink << "\n";
+std::cout << "nofMediumlink :" << nofMediumlink << "\n";
+std::cout << "nofBiglink :" << nofBiglink << "\n";
 }
 
 //Nota: Sarebbe meglio differenziare i link casa-casa, casa-smistamento. Non tanto per una questione di portata energetica, quanto per differenziarli.
